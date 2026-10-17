@@ -1,0 +1,15 @@
+# Installation manifest for the root installer.
+#
+# One module directory per line. Lines beginning with # and blank lines are
+# ignored. The root install.sh invokes <module>/install.sh for every enabled
+# entry below, in the order listed.
+#
+# Disable a module temporarily by commenting it out:
+#   #zsh
+#
+# Add future modules in the same way, for example:
+#   vim
+#   emacs
+
+zsh
+tmux

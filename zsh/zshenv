@@ -1,0 +1,2 @@
+# Do not load the system-wide global Zsh startup files.
+unsetopt GLOBAL_RCS

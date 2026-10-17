@@ -1,0 +1,18 @@
+# Machine-private Zsh settings.
+# Copy this file to ~/.config/unix_configs/local.zsh and edit it there.
+# The real local.zsh is intentionally not stored in Git.
+
+# Volcengine Ark API key (required only by tools that use Ark).
+# export VOLC_AGENT_PLAN_API_KEY="replace-with-your-api-key"
+
+# Optional local HTTP proxy.
+# Use percent-encoding if the username or password contains special characters.
+# export http_proxy="http://username:password@127.0.0.1:7890"
+# export https_proxy="$http_proxy"
+# export HTTP_PROXY="$http_proxy"
+# export HTTPS_PROXY="$http_proxy"
+# export no_proxy="localhost,127.0.0.1,::1"
+# export NO_PROXY="$no_proxy"
+
+# Host-specific overrides can go here.
+# export PATH="$HOME/toolchains/bin:$PATH"

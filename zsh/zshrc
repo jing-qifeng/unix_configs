@@ -1,0 +1,143 @@
+# ============================================================
+#  Portable Zsh configuration
+#  Managed by unix_configs; see install.sh
+# ============================================================
+
+# ---------- Local, machine-private settings ----------
+# Put API keys, proxy credentials, and host-specific overrides here.
+# This path is intentionally outside the Git repository.
+UNIX_CONFIG_LOCAL="${UNIX_CONFIG_LOCAL:-$HOME/.config/unix_configs/local.zsh}"
+
+# ---------- Node.js / NVM ----------
+export NVM_NODEJS_ORG_MIRROR=https://repo.huaweicloud.com/nodejs/
+export NVM_DIR="$HOME/.nvm"
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+
+# ---------- Volcengine Ark endpoints ----------
+# Do not put API keys in this file. Set VOLC_AGENT_PLAN_API_KEY in local.zsh.
+export VOLC_AGENT_PLAN_OPENAI_BASEURL=https://ark.cn-beijing.volces.com/api/plan/v3
+export VOLC_AGENT_PLAN_ANTHROPIC_BASEURL=https://ark.cn-beijing.volces.com/api/plan
+
+# ---------- History ----------
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt APPEND_HISTORY          # append instead of overwriting
+setopt INC_APPEND_HISTORY      # write each command immediately
+setopt SHARE_HISTORY           # share history across interactive shells
+setopt HIST_IGNORE_ALL_DUPS    # remove duplicate history entries
+setopt HIST_REDUCE_BLANKS      # remove redundant blanks
+setopt HIST_VERIFY             # verify history expansion before execution
+setopt EXTENDED_HISTORY        # store timestamps
+
+# Import Bash history once when moving from Bash to Zsh.
+if [[ ! -f "$HISTFILE" && -f "$HOME/.bash_history" ]]; then
+  fc -R "$HOME/.bash_history" && fc -W
+fi
+
+# ---------- Common shell options ----------
+setopt AUTO_CD                 # type a directory name to cd into it
+setopt AUTO_PUSHD PUSHD_SILENT # maintain a directory stack silently
+setopt GLOB_STAR_SHORT         # **.ext works like **/*.ext
+setopt INTERACTIVE_COMMENTS    # allow comments in interactive shells
+setopt NO_BEEP                 # disable terminal bell
+
+# ---------- Completion ----------
+autoload -Uz compinit
+# Run the full security check once per day; use the cache otherwise.
+_zcompdump="$HOME/.zcompdump"
+if [[ $(( $(date +%s) - $(stat -c %Y "$_zcompdump" 2>/dev/null || echo 0) )) -gt 86400 ]]; then
+  compinit
+else
+  compinit -C
+fi
+unset _zcompdump
+
+# Tab opens a selectable menu; repeated Tab cycles through entries.
+zstyle ':completion:*' menu select
+# Case-insensitive matching and treat - _ . similarly.
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+zstyle ':completion:*' squeeze-slashes true
+
+# ---------- User-local plugin paths ----------
+FZF_TAB_PLUGIN="$HOME/.local/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+P10K_THEME="$HOME/.local/share/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme"
+P10K_CONFIG="$HOME/.p10k.zsh"
+
+# ---------- fzf-tab ----------
+# Must be loaded after compinit.
+if [[ -r "$FZF_TAB_PLUGIN" ]]; then
+  source "$FZF_TAB_PLUGIN"
+  zstyle ':fzf-tab:*' fzf-flags --height=40% --layout=reverse --border
+  zstyle ':fzf-tab:*' switch-group ',' '.'
+fi
+
+# ---------- fzf ----------
+# Ctrl+R: history; Ctrl+T: files; Alt+C: directories; **<Tab>: fuzzy completion.
+for _fzf_key_bindings in \
+  /usr/share/fzf/shell/key-bindings.zsh \
+  /usr/share/fzf/key-bindings.zsh \
+  /opt/homebrew/opt/fzf/shell/key-bindings.zsh \
+  /opt/homebrew/share/fzf/key-bindings.zsh
+do
+  [[ -r "$_fzf_key_bindings" ]] && source "$_fzf_key_bindings" && break
+done
+unset _fzf_key_bindings
+
+for _fzf_completion in \
+  "$HOME/.local/share/fzf/completion.zsh" \
+  /usr/share/fzf/shell/completion.zsh \
+  /usr/share/fzf/completion.zsh \
+  /opt/homebrew/opt/fzf/shell/completion.zsh \
+  /opt/homebrew/share/fzf/completion.zsh
+do
+  [[ -r "$_fzf_completion" ]] && source "$_fzf_completion" && break
+done
+unset _fzf_completion
+
+export FZF_DEFAULT_OPTS='--height=40% --layout=reverse --border'
+
+# ---------- zsh-autosuggestions ----------
+for _zsh_autosuggestions in \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+do
+  if [[ -r "$_zsh_autosuggestions" ]]; then
+    source "$_zsh_autosuggestions"
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+    bindkey '^[[C' autosuggest-accept  # Right arrow
+    bindkey '^[[F' autosuggest-accept  # End
+    bindkey '^ '   autosuggest-accept  # Ctrl+Space
+    break
+  fi
+done
+unset _zsh_autosuggestions
+
+# ---------- Powerlevel10k prompt ----------
+if [[ -r "$P10K_THEME" ]]; then
+  source "$P10K_THEME"
+  [[ -r "$P10K_CONFIG" ]] && source "$P10K_CONFIG"
+fi
+
+# ---------- zsh-syntax-highlighting: must stay near the end ----------
+for _zsh_syntax_highlighting in \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+do
+  [[ -r "$_zsh_syntax_highlighting" ]] && source "$_zsh_syntax_highlighting" && break
+done
+unset _zsh_syntax_highlighting
+
+# ---------- User-local binaries ----------
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
+# Load private local settings last so they can override anything above.
+[[ -r "$UNIX_CONFIG_LOCAL" ]] && source "$UNIX_CONFIG_LOCAL"
