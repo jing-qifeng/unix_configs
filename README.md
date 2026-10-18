@@ -168,6 +168,20 @@ export NO_PROXY="$no_proxy"
 
 - 前缀键：`Ctrl+\`
 - 鼠标支持已开启
+- 需要 tmux 3.2 或更新版本；终端需支持 256 色和真彩色。
+- 使用 `xterm-256color`，补充 RGB / Tc 真彩色声明，并为新窗口设置 `COLORTERM=truecolor`。
+
+仅更新 tmux 配置：
+
+```bash
+./install.sh tmux
+# 有运行中的 tmux server 时加载配置：
+tmux source-file ~/.tmux.conf
+```
+
+加载后重新连接 tmux，并在新窗口中重新启动 TUI 应用。已有窗口中的环境变量不会自动更新。
+
+注意：真彩色配置不保证应用主题一定提供彩色底色。Pi 的 `system` 主题在无法取得终端颜色时可能取消面板底色，可在 Pi 中通过 `/settings` 选择 `dark` 主题；本仓库不管理 Pi 的 `settings.json`。
 
 ## 将 Zsh 设置为默认 Shell
 
